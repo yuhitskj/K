@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Embedder with Brightness Control</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #f1f1f1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #4cc9f0;
+            text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+        }
+        
+        .subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+        
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .url-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        label {
+            font-size: 1.1rem;
+            color: #72efdd;
+        }
+        
+        .url-input {
+            display: flex;
+            gap: 10px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            border: 1px solid rgba(76, 201, 240, 0.3);
+            transition: all 0.3s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #4cc9f0;
+            box-shadow: 0 0 0 2px rgba(76, 201, 240, 0.2);
+        }
+        
+        button {
+            padding: 15px 25px;
+            background: linear-gradient(to right, #4361ee, #3a0ca3);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        button:hover {
+            background: linear-gradient(to right, #3a56d4, #2d0a8a);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .instructions {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 4px solid #4361ee;
+        }
+        
+        .instructions h3 {
+            color: #72efdd;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
+        .key-combo {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .example {
+            color: #aaa;
+            font-style: italic;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .warning {
+            color: #f72585;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: rgba(247, 37, 133, 0.1);
+            border-left: 3px solid #f72585;
+        }
+        
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        .brightness-controls {
+            display: none;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.85);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(76, 201, 240, 0.5);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+            z-index: 10000;
+            width: 300px;
+        }
+        
+        .brightness-controls h3 {
+            color: #4cc9f0;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: #f72585;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+        
+        .close-btn:hover {
+            background-color: rgba(247, 37, 133, 0.2);
+        }
+        
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .slider-container {
+            flex: 1;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4cc9f0;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(76, 201, 240, 0.7);
+        }
+        
+        .number-input {
+            width: 80px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(76, 201, 240, 0.5);
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        .current-value {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-top: 10px;
+        }
+        
+        .active-embed {
+            background-color: rgba(67, 97, 238, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid rgba(67, 97, 238, 0.5);
+        }
+        
+        .active-embed h3 {
+            color: #72efdd;
+            margin-bottom: 10px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Website Embedder with Brightness Control</h1>
+        <p class="subtitle">Open any website in a new tab with fullscreen about:blank embedding</p>
+        
+        <div class="input-section">
+            <div class="url-input-container">
+                <label for="url-input">Enter Website URL</label>
+                <div class="url-input">
+                    <input type="text" id="url-input" placeholder="https://example.com">
+                    <button id="open-btn">Open in New Tab</button>
+                </div>
+                <p class="example">Example: https://www.wikipedia.org or google.com</p>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Use:</h3>
+            <ul>
+                <li>Enter a website URL above and click "Open in New Tab"</li>
+                <li>The website will open in a new tab with about:blank embedding</li>
+                <li>Once the website is loaded, press <span class="key-combo">Ctrl + Shift + Alt</span> simultaneously to open the brightness control panel</li>
+                <li>Adjust brightness using the slider or by entering a value in the number box (even negative values work)</li>
+                <li>Press <span class="key-combo">Ctrl + Shift + Alt</span> again to close the control panel</li>
+                <li>You can also close the panel using the X button</li>
+            </ul>
+        </div>
+        
+        <div class="warning">
+            <strong>Note:</strong> Some websites may block embedding for security reasons. If a website doesn't load properly, try a different site.
+        </div>
+        
+        <div class="active-embed hidden" id="active-embed">
+            <h3>Active Embed</h3>
+            <p id="active-url"></p>
+            <p>Press <span class="key-combo">Ctrl + Shift + Alt</span> in the embedded page to toggle brightness controls.</p>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Website Embedder Tool | Press Ctrl+Shift+Alt in embedded page to toggle brightness controls</p>
+    </footer>
+    
+    <!-- Brightness control panel (initially hidden, will be injected into new tab) -->
+    <div id="brightness-controls-template" class="brightness-controls hidden">
+        <h3>Brightness Controls
+            <button class="close-btn" id="close-controls">×</button>
+        </h3>
+        <div class="control-group">
+            <div class="slider-container">
+                <input type="range" id="brightness-slider" min="-100" max="200" value="100" step="1">
+            </div>
+            <input type="number" id="brightness-input" class="number-input" value="100" step="1">
+        </div>
+        <div class="current-value">Current brightness: <span id="brightness-value">100%</span></div>
+    </div>
+
+    <script>
+        // DOM elements
+        const urlInput = document.getElementById('url-input');
+        const openBtn = document.getElementById('open-btn');
+        const activeEmbedDiv = document.getElementById('active-embed');
+        const activeUrlSpan = document.getElementById('active-url');
+        const brightnessControlsTemplate = document.getElementById('brightness-controls-template');
+        
+        // Store the currently opened window reference
+        let embeddedWindow = null;
+        
+        // Open website in new tab with about:blank embedding
+        openBtn.addEventListener('click', () => {
+            let url = urlInput.value.trim();
+            
+            // Add https:// if no protocol is specified
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+            
+            try {
+                // Validate URL
+                new URL(url);
+                
+                // Open new tab with about:blank
+                embeddedWindow = window.open('about:blank', '_blank');
+                
+                if (!embeddedWindow) {
+                    alert('Popup blocked! Please allow popups for this site.');
+                    return;
+                }
+                
+                // Write the HTML content for the new tab
+                embeddedWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Embedded: ${url}</title>
+                        <style>
+                            body, html {
+                                margin: 0;
+                                padding: 0;
+                                width: 100%;
+                                height: 100%;
+                                overflow: hidden;
+                                filter: brightness(100%);
+                                transition: filter 0.3s ease;
+                            }
+                            
+                            iframe {
+                                width: 100%;
+                                height: 100%;
+                                border: none;
+                            }
+                            
+                            /* Brightness control panel styles */
+                            .brightness-controls {
+                                display: none;
+                                position: fixed;
+                                top: 20px;
+                                right: 20px;
+                                background-color: rgba(0, 0, 0, 0.85);
+                                padding: 20px;
+                                border-radius: 10px;
+                                border: 1px solid rgba(76, 201, 240, 0.5);
+                                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.7);
+                                z-index: 10000;
+                                width: 300px;
+                                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                            }
+                            
+                            .brightness-controls.show {
+                                display: block;
+                            }
+                            
+                            .brightness-controls h3 {
+                                color: #4cc9f0;
+                                margin-bottom: 15px;
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                margin-top: 0;
+                            }
+                            
+                            .close-btn {
+                                background: none;
+                                border: none;
+                                color: #f72585;
+                                font-size: 1.5rem;
+                                cursor: pointer;
+                                padding: 0;
+                                width: 30px;
+                                height: 30px;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                border-radius: 50%;
+                            }
+                            
+                            .close-btn:hover {
+                                background-color: rgba(247, 37, 133, 0.2);
+                            }
+                            
+                            .control-group {
+                                display: flex;
+                                align-items: center;
+                                gap: 15px;
+                                margin-bottom: 15px;
+                            }
+                            
+                            .slider-container {
+                                flex: 1;
+                            }
+                            
+                            input[type="range"] {
+                                width: 100%;
+                                height: 8px;
+                                border-radius: 4px;
+                                background: rgba(255, 255, 255, 0.1);
+                                outline: none;
+                                -webkit-appearance: none;
+                            }
+                            
+                            input[type="range"]::-webkit-slider-thumb {
+                                -webkit-appearance: none;
+                                width: 20px;
+                                height: 20px;
+                                border-radius: 50%;
+                                background: #4cc9f0;
+                                cursor: pointer;
+                                box-shadow: 0 0 10px rgba(76, 201, 240, 0.7);
+                            }
+                            
+                            .number-input {
+                                width: 80px;
+                                padding: 10px;
+                                border-radius: 5px;
+                                border: 1px solid rgba(76, 201, 240, 0.5);
+                                background-color: rgba(255, 255, 255, 0.1);
+                                color: white;
+                                text-align: center;
+                                font-size: 1.1rem;
+                            }
+                            
+                            .current-value {
+                                text-align: center;
+                                font-size: 0.9rem;
+                                color: #aaa;
+                                margin-top: 10px;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <iframe src="${url}" id="embedded-site"></iframe>
+                        
+                        <div class="brightness-controls" id="brightness-controls">
+                            <h3>Brightness Controls
+                                <button class="close-btn" id="close-controls">×</button>
+                            </h3>
+                            <div class="control-group">
+                                <div class="slider-container">
+                                    <input type="range" id="brightness-slider" min="-100" max="200" value="100" step="1">
+                                </div>
+                                <input type="number" id="brightness-input" class="number-input" value="100" step="1">
+                            </div>
+                            <div class="current-value">Current brightness: <span id="brightness-value">100%</span></div>
+                        </div>
+                        
+                        <script>
+                            // Brightness control logic for the embedded page
+                            let brightnessControlsVisible = false;
+                            const brightnessControls = document.getElementById('brightness-controls');
+                            const brightnessSlider = document.getElementById('brightness-slider');
+                            const brightnessInput = document.getElementById('brightness-input');
+                            const brightnessValue = document.getElementById('brightness-value');
+                            const closeControlsBtn = document.getElementById('close-controls');
+                            const embeddedSite = document.getElementById('embedded-site');
+                            
+                            // Toggle brightness controls with Ctrl+Shift+Alt
+                            document.addEventListener('keydown', (e) => {
+                                if (e.ctrlKey && e.shiftKey && e.altKey) {
+                                    e.preventDefault();
+                                    toggleBrightnessControls();
+                                }
+                            });
+                            
+                            // Close controls with X button
+                            closeControlsBtn.addEventListener('click', () => {
+                                brightnessControlsVisible = false;
+                                brightnessControls.classList.remove('show');
+                            });
+                            
+                            // Update brightness when slider changes
+                            brightnessSlider.addEventListener('input', () => {
+                                const value = brightnessSlider.value;
+                                brightnessInput.value = value;
+                                brightnessValue.textContent = value + '%';
+                                updateBrightness(value);
+                            });
+                            
+                            // Update brightness when input changes
+                            brightnessInput.addEventListener('input', () => {
+                                let value = brightnessInput.value;
+                                
+                                // Allow any number (including negative)
+                                if (value === '' || isNaN(value)) {
+                                    value = 100;
+                                }
+                                
+                                // Ensure slider can handle the value
+                                const sliderMin = parseInt(brightnessSlider.min);
+                                const sliderMax = parseInt(brightnessSlider.max);
+                                
+                                if (value < sliderMin) {
+                                    brightnessSlider.min = Math.min(sliderMin, value - 10);
+                                }
+                                
+                                if (value > sliderMax) {
+                                    brightnessSlider.max = Math.max(sliderMax, value + 10);
+                                }
+                                
+                                brightnessSlider.value = value;
+                                brightnessValue.textContent = value + '%';
+                                updateBrightness(value);
+                            });
+                            
+                            // Update brightness for the entire page
+                            function updateBrightness(value) {
+                                document.body.style.filter = \`brightness(\${value}%)\`;
+                            }
+                            
+                            // Toggle brightness controls visibility
+                            function toggleBrightnessControls() {
+                                brightnessControlsVisible = !brightnessControlsVisible;
+                                
+                                if (brightnessControlsVisible) {
+                                    brightnessControls.classList.add('show');
+                                } else {
+                                    brightnessControls.classList.remove('show');
+                                }
+                            }
+                            
+                            // Initialize
+                            updateBrightness(100);
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                
+                embeddedWindow.document.close();
+                
+                // Update the active embed display
+                activeUrlSpan.textContent = `Currently embedded: ${url}`;
+                activeEmbedDiv.classList.remove('hidden');
+                
+            } catch (error) {
+                alert('Invalid URL. Please enter a valid website address.');
+                console.error('URL error:', error);
+            }
+        });
+        
+        // Allow pressing Enter to submit the URL
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                openBtn.click();
+            }
+        });
+        
+        // Provide an example URL
+        urlInput.value = 'https://www.wikipedia.org';
+    </script>
+</body>
+</html>
